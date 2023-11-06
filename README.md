@@ -242,17 +242,6 @@ listener_params = {
     'Port': 80,  # Replace with the port you want to use
     'Protocol': 'HTTP',  # Use 'HTTPS' for HTTPS
     'DefaultActions': [
-        # {
-        #     'Type': 'fixed-response',
-        #     'FixedResponseConfig': {
-        #         'ContentType': 'text/plain',
-        #         'StatusCode': '200',
-        #         'ContentType': 'text/plain',
-        #         # 'Content': 'OK'
-                
-        #     }
-            
-        # },
         {
             'Type': 'forward',
             'TargetGroupArn': target_group_arn  # Point the listener to the target group

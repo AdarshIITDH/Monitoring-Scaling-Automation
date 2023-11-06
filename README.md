@@ -307,4 +307,8 @@ launch_template = ec2_client.create_launch_template(
 launch_template_id = launch_template['LaunchTemplate']['LaunchTemplateId']
 #------------------------------------------------------------------------------------
 ```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/7620b90d-e239-472f-af1d-ff46208a4593)
 
+```
+
+```

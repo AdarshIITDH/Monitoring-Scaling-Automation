@@ -63,6 +63,7 @@ ec2_client.create_tags(Resources=[instance_id], Tags=[{'Key': 'Name', 'Value': '
 
 ```
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/6d551c70-911c-4a2e-bb1c-acd1c37fde4d)
+
 Web-server is up and running
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/6a3819c3-1b0d-4a61-9f2c-af4cf877fe60)
 

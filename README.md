@@ -108,3 +108,76 @@ ec2_client.create_tags(Resources=[instance_id], Tags=[{'Key': 'Name', 'Value': '
 Web-server is up and running
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/6a3819c3-1b0d-4a61-9f2c-af4cf877fe60)
 
+
+
+2. Load Balancing with ELB:
+ - Deploy an Application Load Balancer (ALB) using `boto3`.
+ - Register the EC2 instance(s) with the ALB.
+
+```
+#---------------------target group-----------------------------
+import boto3
+import csv
+client = boto3.client('elbv2', region_name='ap-south-1')
+# Define the target group parameters
+target_group_params = {
+    'Name': 'adarsh-boto3-tg',  # Replace with your desired target group name
+    'Protocol': 'HTTP',  # Use 'HTTPS' for HTTPS
+    'Port': 80,  # Replace with your desired port
+    'VpcId': 'vpc-0c5a8881cff1146d8',  # Replace with your VPC ID
+}
+# Create the target group
+target_group_response = client.create_target_group(**target_group_params)
+response1 = client.describe_target_groups(Names=['adarsh-boto3-tg'])
+target_group_arn = response1['TargetGroups'][0]['TargetGroupArn']
+# Get the target group ARN from the response
+target_group_arn = target_group_response['TargetGroups'][0]['TargetGroupArn']
+
+
+# Check if the CSV file exists
+file_exists = False
+#register instance with the target group
+instances_to_register = []
+# Read the CSV file
+with open('credientials.csv', 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for column in reader:
+        instance_id = column['Instance ID']
+        instances_to_register.append(instance_id)
+
+target_group_found = False  # To track if the "Target-Group" column is found
+
+# Read the existing CSV file to check for the "Target-Group" column
+with open('credientials.csv', 'r') as csvfile:
+    reader = csv.DictReader(csvfile)
+    fieldnames = reader.fieldnames  # Get the existing field names
+    if 'Target-Group' in fieldnames:
+        target_group_found = True
+
+# If the "Target-Group" column is not found, add it to the existing field names
+if not target_group_found:
+    fieldnames.append('Target-Group')
+
+# Update the 'credientials.csv' file with the target group ARN
+with open('credientials.csv', 'a', newline='') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+    # If the "Target-Group" column was added, write the header
+    if not target_group_found:
+        writer.writeheader()
+
+    # Prepare a dictionary with empty values for existing columns
+    row_data = {column: '' for column in fieldnames}
+
+    # Set the "Target-Group" value
+    row_data['Target-Group'] = target_group_arn
+
+    # Write the row to the CSV file
+    writer.writerow(row_data)
+
+# Now, the instances_to_register list contains the instance IDs
+
+for instance_id in instances_to_register:
+    client.register_targets(TargetGroupArn=target_group_arn, Targets=[{'Id': instance_id}])
+#-----------------------------------------------------------------
+```

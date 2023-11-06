@@ -23,6 +23,7 @@ bucket_name = 'adarsh-s3'
 # Create the S3 bucket
 location = {'LocationConstraint': region}
 s3_client.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
+#----------------------------------------------------------------------------------
 ```
 
 ```
@@ -60,7 +61,7 @@ instance_id = instance['Instances'][0]['InstanceId']
 ec2_client.get_waiter('instance_running').wait(InstanceIds=[instance_id])
 # You can also add tags to the instance for better management
 ec2_client.create_tags(Resources=[instance_id], Tags=[{'Key': 'Name', 'Value': 'adarsh-boto3'}])
-
+#----------------------------------------------------------------------------------
 ```
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/6d551c70-911c-4a2e-bb1c-acd1c37fde4d)
 

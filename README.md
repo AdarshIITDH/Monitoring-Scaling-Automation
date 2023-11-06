@@ -249,8 +249,14 @@ listener_params = {
     ]
 }
 client.create_listener(**listener_params)
-
 #------------------------------------------------------------------------------------
-
-
 ```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/c4d6aedd-c3fc-48e4-a747-77171cfe57a3)
+
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/56b6b0c1-5b6f-4a4d-b320-a54982a35dd2)
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/708a9c1e-0921-4d05-868b-a4438dbffbe0)
+
+
+
+
+

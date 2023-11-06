@@ -256,7 +256,55 @@ client.create_listener(**listener_params)
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/56b6b0c1-5b6f-4a4d-b320-a54982a35dd2)
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/708a9c1e-0921-4d05-868b-a4438dbffbe0)
 
+3. Auto Scaling Group (ASG) Configuration:
+ - Using `boto3`, create an ASG with the deployed EC2 instance as a template.
+ - Configure scaling policies to scale in/out based on metrics like CPU utilization or network traffic
 
+```
+#----------------------EC2 Template configuration-----------------------------------
+import boto3
+import csv
+region='ap-south-1'
+# Create the EC2 template 
 
+# Initialize the EC2 client
+ec2_client = boto3.client('ec2', region_name= region)
 
+# EC2 instance ID to use as a template
+instance_id = 'i-0f33853ceec6bac22'
+
+# Describe the instance to get its configuration details
+response = ec2_client.describe_instances(InstanceIds=[instance_id])
+
+# Extract the instance details
+instance = response['Reservations'][0]['Instances'][0]
+instance_type = instance['InstanceType']
+ami_id = instance['ImageId']
+key_name = instance.get('adarsh_key', '')  # Key pair name
+security_group_ids = [sg['GroupId'] for sg in instance['SecurityGroups']]
+subnet_id = instance['SubnetId']
+
+# Create a launch template using the instance's configuration
+launch_template_name = 'adarsh-boto3-template'
+launch_template = ec2_client.create_launch_template(
+    LaunchTemplateName=launch_template_name,
+    VersionDescription='Initial version',
+    LaunchTemplateData={
+        'InstanceType': instance_type,
+        'ImageId': ami_id,
+        'KeyName': key_name,
+        'SecurityGroupIds': security_group_ids,
+        'NetworkInterfaces': [
+            {
+                'DeviceIndex': 0,
+                'SubnetId': subnet_id,
+            }
+        ]
+    }
+)
+
+# Extract the launch template ID
+launch_template_id = launch_template['LaunchTemplate']['LaunchTemplateId']
+#------------------------------------------------------------------------------------
+```
 

@@ -390,4 +390,73 @@ sns_client.subscribe(
 ```
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/ce0411a9-ba33-484f-bb2b-cf266430c18f)
 
+Follow the code.py for Lambda Function reference
+```
+#------------------------Lambda Function-------------------------------------------
+import boto3
 
+client = boto3.client('lambda' , region_name='ap-south-1')
+
+with open('code.zip', 'rb') as file:
+    zip_contents = file.read()
+response = client.create_function(
+    Code={
+        'ZipFile': zip_contents  
+    },
+    FunctionName='adarsh-boto3-lambda',
+    Handler='index.handler',
+    MemorySize=256,
+    Publish=True,
+    Role='arn:aws:iam::295397358094:role/adarsh-role',
+    Runtime='python3.11',
+    # Tags={
+    #     'DEPARTMENT': 'Assets',
+    # },
+    Timeout=15,
+    TracingConfig={
+        'Mode': 'Active',
+    },
+)
+
+yourlambdafunctionarn='arn:aws:lambda:ap-south-1:295397358094:function:adarsh-boto3-lambda'
+
+# Lambda function information
+function_name = 'adarsh-boto3-lambda'
+sns_topic_arn = 'arn:aws:sns:ap-south-1:295397358094:adarsh-boto3-sns'
+
+# Create or update the function's resource-based policy
+policy = {
+    'Version': '2012-10-17',
+    'Statement': [
+        {
+            'Effect': 'Allow',
+            'Principal': {
+                'Service': 'lambda.amazonaws.com'
+            },
+            'Action': 'lambda:InvokeFunction',
+            'Resource': yourlambdafunctionarn,
+            'Condition': {
+                'ArnLike': {
+                    'AWS:SourceArn': sns_topic_arn
+                }
+            }
+        }
+    ]
+}
+
+response = client.add_permission(
+    FunctionName=function_name,
+    StatementId='sns-permission',
+    Action='lambda:InvokeFunction',
+    Principal='sns.amazonaws.com',
+    SourceArn='arn:aws:sns:ap-south-1:295397358094:adarsh-boto3-sns',
+    SourceAccount='295397358094'  
+)
+
+print(response)
+#------------------------------------------------------------------------
+```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/0a4e1c91-7b62-47a1-bbf5-e9a6ffc2d94b)
+
+Manually terminated the instance to check the function is working - Got the email
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/142d44d6-4026-416d-bdc9-14d31ef131cb)

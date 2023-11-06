@@ -56,7 +56,12 @@ instance_params = {
 instance = ec2_client.run_instances(**instance_params)
 # Get the instance ID
 instance_id = instance['Instances'][0]['InstanceId']
-
+#storing the instance id in csv for future reference
+with open('instance_ids.csv', 'w', newline='') as csvfile:
+    fieldnames = ['Instance ID']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerow({'Instance ID': instance_id})
 # Wait for the instance to be running (optional)
 ec2_client.get_waiter('instance_running').wait(InstanceIds=[instance_id])
 # You can also add tags to the instance for better management

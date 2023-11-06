@@ -353,12 +353,41 @@ scaling_policy_params = {
 ![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/b77f7f60-eb33-47d9-8521-564820218618)
 
 4. Lambda-based Health Checks & Management:
- - Develop a Lambda function to periodically check the health of the web application(through the ALB).
- - If the health check fails consistently, the Lambda function should:
- - Capture a snapshot of the failing instance for debugging purposes.
- - Terminate the problematic instance, allowing the ASG to replace it.
- - Send a notification through SNS to the administrators.
+    - Develop a Lambda function to periodically check the health of the web application(through the ALB).
+    - If the health check fails consistently, the Lambda function should:
+    - Capture a snapshot of the failing instance for debugging purposes.
+    - Terminate the problematic instance, allowing the ASG to replace it.
+    - Send a notification through SNS to the administrators.
 
+```
+#----------------------SNS Topic ------------------------------------
+import boto3
+# Initialize the SNS client
+sns_client = boto3.client('sns', region_name='ap-south-1') 
 
+# Define the SNS topic name
+topic_name = 'adarsh-boto3-sns'
+
+# Create the SNS topic
+response = sns_client.create_topic(Name=topic_name)
+
+# Extract the ARN (Amazon Resource Name) of the created SNS topic
+topic_arn = response['TopicArn']
+
+print(f'SNS topic created with ARN: {topic_arn}')
+
+# Specify the protocol and endpoint (email address in this case)
+protocol = 'email'
+endpoint = 'adarsh307kumar@gmail.com'
+
+# Create the subscription
+sns_client.subscribe(
+    TopicArn=topic_arn,
+    Protocol=protocol,
+    Endpoint=endpoint
+)
+#------------------------------------------------------------------------
+```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/ce0411a9-ba33-484f-bb2b-cf266430c18f)
 
 

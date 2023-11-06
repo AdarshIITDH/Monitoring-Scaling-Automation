@@ -261,7 +261,7 @@ client.create_listener(**listener_params)
  - Configure scaling policies to scale in/out based on metrics like CPU utilization or network traffic
 
 ```
-#----------------------EC2 Template configuration-----------------------------------
+#----------------------EC2 Template configuration-------------------------------------------------------
 import boto3
 import csv
 region='ap-south-1'
@@ -280,7 +280,7 @@ response = ec2_client.describe_instances(InstanceIds=[instance_id])
 instance = response['Reservations'][0]['Instances'][0]
 instance_type = instance['InstanceType']
 ami_id = instance['ImageId']
-key_name = instance.get('adarsh_key', '')  # Key pair name
+key_name = instance.get('adarsh_key')  # Key pair name
 security_group_ids = [sg['GroupId'] for sg in instance['SecurityGroups']]
 subnet_id = instance['SubnetId']
 
@@ -292,23 +292,73 @@ launch_template = ec2_client.create_launch_template(
     LaunchTemplateData={
         'InstanceType': instance_type,
         'ImageId': ami_id,
-        'KeyName': key_name,
+        'KeyName': 'adarsh_key',
         'SecurityGroupIds': security_group_ids,
-        'NetworkInterfaces': [
-            {
-                'DeviceIndex': 0,
-                'SubnetId': subnet_id,
-            }
-        ]
     }
 )
 
 # Extract the launch template ID
 launch_template_id = launch_template['LaunchTemplate']['LaunchTemplateId']
-#------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 ```
-![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/7620b90d-e239-472f-af1d-ff46208a4593)
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/8b8f3c97-8143-49d0-a136-896f1f462bb7)
 
 ```
+#--------------------ASG Configuration-------------------------------------
+
+region='ap-south-1'
+# Initialize the Auto Scaling client
+autoscaling_client = boto3.client('autoscaling', region_name= region)
+
+# Define the Auto Scaling Group configuration
+asg_params = {
+    'AutoScalingGroupName': 'adarsh-boto3-asg',
+    'LaunchTemplate': {
+        'LaunchTemplateName': launch_template_name,
+    },
+    'MinSize': 1,  # Minimum number of instances
+    'MaxSize': 3,  # Maximum number of instances
+    'DesiredCapacity': 1,  # Desired number of instances
+    'AvailabilityZones': ['ap-south-1a','ap-south-1b','ap-south-1c'],  # Define your availability zones
+    # Other parameters as needed
+}
+
+# Create the Auto Scaling Group
+response = autoscaling_client.create_auto_scaling_group(**asg_params)
+print(f"Auto Scaling Group '{asg_params['AutoScalingGroupName']}' created with Launch Template ID '{launch_template_id}'")
+#-----------------------------------------------------
+```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/2aebd522-2f38-45df-888f-205e278a9611)
 
 ```
+#---------------------Scaling Policy--------------------------------
+# Define the scaling policy parameters
+scaling_policy_params = {
+    'AutoScalingGroupName': 'adarsh-boto3-asg',  
+    'PolicyName': 'adarsh-boto3-asgp',  
+    'PolicyType': 'TargetTrackingScaling', 
+    # 'AdjustmentType': 'ChangeInCapacity',
+    # 'ScalingAdjustment': 1,  # Adjust by 1 instance
+    # 'Cooldown': 60,  # Cooldown period in seconds
+    'TargetTrackingConfiguration': {
+        'PredefinedMetricSpecification': {
+            'PredefinedMetricType': 'ASGAverageCPUUtilization',
+            # 'ResourceLabel': 'app/adarsh-neeraj-lb/b75d821e7370c5cd/targetgroup/adarsh-neeraj-tg/640d9f378acdbef4',
+        },
+        'TargetValue': 70,
+    },
+}
+#-----------------------------------------------------
+```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/b77f7f60-eb33-47d9-8521-564820218618)
+
+4. Lambda-based Health Checks & Management:
+ - Develop a Lambda function to periodically check the health of the web application(through the ALB).
+ - If the health check fails consistently, the Lambda function should:
+ - Capture a snapshot of the failing instance for debugging purposes.
+ - Terminate the problematic instance, allowing the ASG to replace it.
+ - Send a notification through SNS to the administrators.
+
+
+
+

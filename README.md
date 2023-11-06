@@ -62,5 +62,6 @@ ec2_client.get_waiter('instance_running').wait(InstanceIds=[instance_id])
 ec2_client.create_tags(Resources=[instance_id], Tags=[{'Key': 'Name', 'Value': 'adarsh-boto3'}])
 
 ```
+![image](https://github.com/AdarshIITDH/Monitoring-Scaling-Automation/assets/60352729/6d551c70-911c-4a2e-bb1c-acd1c37fde4d)
 
 
